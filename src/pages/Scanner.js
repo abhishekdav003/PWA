@@ -1,15 +1,35 @@
-import React, { useState } from "react";
-import { QrReader } from "react-qr-reader";
+import React, { useEffect } from "react";
 import { MdArrowBack, MdOutlineFlashOff } from "react-icons/md";
+import { Html5QrcodeScanner } from "html5-qrcode";
 
 import "./scanner.css";
 
 const QRScanner = () => {
-  const [data, setdata] = useState();
+  useEffect(() => {
+    const scanner = new Html5QrcodeScanner(
+      "qr-reader",
+      {
+        fps: 10,
+        qrbox: 250,
+      },
+      false
+    );
 
-  const handleScanned = (result) => {
-    console.log(result);
-  };
+    scanner.render(
+      (decodedText) => {
+        console.log("Scan Successful:", decodedText);
+        alert(`Scan Successful: ${decodedText}`);
+      },
+      (errorMessage) => {
+        console.warn("QR Scan Error:", errorMessage);
+      }
+    );
+
+    return () => {
+      // Cleanup if component unmounts
+      Html5QrcodeScanner.clear();
+    };
+  }, []);
 
   return (
     <div className="container">
@@ -22,26 +42,12 @@ const QRScanner = () => {
           color="#fff"
         />
       </div>
-      <QrReader
-        scanDelay={100}
-        constraints={{facingMode: "environment"  }}
-          onError={(err) => console.log(err)}
-          onScan={(data) => window.alert("Scan Successful")}
-          // chooseDeviceId={()=>selected}
-          containerStyle={{ width: "100%", heigth: "200px" }}
-          videoContainerStyle={{ width: "100%", heigth: "200px", border: "1px solid red" }}
-          videoStyle={{ width: "100%", heigth: "100px", border: "1px solid red" }}
-          onResult={(result, error) => {
-          if (!!result) {
-            handleScanned(result);
-            window.alert("Scan Successful", result);
-          }
 
-          if (!!error) {
-            console.info("failed");
-          }
-        }}
-      />
+      {/* Scanner renders here */}
+      <div
+        id="qr-reader"
+        style={{ width: "100%", border: "1px solid red", padding: "10px" }}
+      ></div>
     </div>
   );
 };
